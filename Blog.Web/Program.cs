@@ -2,21 +2,27 @@ using Blog.Web.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Opw.PineBlog;
+using Opw.PineBlog.EntityFrameworkCore;
 using Opw.PineBlog.RazorPages;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddRazorPages();
+
+builder.Configuration.AddPineBlogEntityFrameworkCoreConfiguration(reloadOnChange: true);
+
 builder.Services.AddPineBlog(builder.Configuration);
-builder.Services.AddMvcCore().AddPineBlogRazorPages();
+
+builder.Services.AddRazorPages().AddPineBlogRazorPages();
 
 var app = builder.Build();
 
@@ -41,5 +47,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers();
 
 app.Run();
